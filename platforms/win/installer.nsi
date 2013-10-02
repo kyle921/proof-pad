@@ -81,8 +81,19 @@ functionEnd
  
 section "uninstall"
 	delete "$SMPROGRAMS\${APPNAME}.lnk"
-	RMDir /r $INSTDIR
- 
+	RMDir /r "$INSTDIR\acl2"
+	Delete "$INSTDIR\icon.ico"
+	Delete "$INSTDIR\proofpad.exe"
+	Delete "$INSTDIR\proofpad.jar"
+	Delete "$INSTDIR\uninstall.exe"
+
+	RMDir $INSTDIR
+	IfFileExists "$INSTDIR\*.*" +1 +2
+		MessageBox MB_OK|MB_ICONINFORMATION|MB_SETFOREGROUND \
+			"Install directory $INSTDIR contains extra files. Please verify that you wish to remove these \
+			files before deleting the directory." \
+			/SD IDOK
+
 	# Remove uninstaller information from the registry
 	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}"
 sectionEnd
