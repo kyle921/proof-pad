@@ -13,23 +13,33 @@ Icon "Icons\icon.ico"
 outFile "InstallProofPad.exe"
  
 !include LogicLib.nsh
- 
+
 page directory
 Page instfiles
  
 !macro VerifyUserIsAdmin
 UserInfo::GetAccountType
-pop $0
-${If} $0 != "admin"
-        messageBox mb_iconstop "Administrator rights required."
-        setErrorLevel 740
-        quit
-${EndIf}
+	pop $0
+	${If} $0 != "admin"
+		messageBox mb_iconstop "Administrator rights required."
+		setErrorLevel 740
+		quit
+	${EndIf}
 !macroend
+
+!macro _RunningX64 _a _b _t _f
+	!insertmacro _LOGICLIB_TEMP
+	System::Call kernel32::GetCurrentProcess()i.s
+	System::Call kernel32::IsWow64Process(is,*i.s)
+	Pop $_LOGICLIB_TEMP
+	!insertmacro _!= $_LOGICLIB_TEMP 0 `${_t}` `${_f}`
+!macroend
+
+!define RunningX64 `"" RunningX64 ""`
  
 function .onInit
 	${If} ${RunningX64}
-		StrCpy $instdir $programfiles64
+		StrCpy $INSTDIR "$PROGRAMFILES64\Proof Pad\"
 	${EndIf}
 	setShellVarContext all
 	!insertmacro VerifyUserIsAdmin
