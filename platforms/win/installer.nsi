@@ -3,20 +3,36 @@
 
 !define VERSIONMAJOR 0
 !define VERSIONMINOR 3
- 
+
 RequestExecutionLevel admin
- 
-InstallDir "$PROGRAMFILES\${APPNAME}"
- 
+
+!include "MUI2.nsh"
+
 Name "${APPNAME}"
-Icon "Icons\icon.ico"
+!define MUI_ICON "Icons\icon.ico"
+!define MUI_UNICON "Icons\icon.ico"
 outFile "InstallProofPad.exe"
- 
+InstallDir "$PROGRAMFILES\${APPNAME}"
+
+!define MUI_ABORTWARNING
+
+!insertmacro MUI_PAGE_LICENSE "LICENSE"
+Var SMFOLDER
+!insertmacro MUI_PAGE_STARTMENU "Application" $SMFOLDER
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_INSTFILES
+!define MUI_FINISHPAGE_RUN "$INSTDIR\proofpad.exe"
+!define MUI_FINISHPAGE_RUN_TEXT "Launch Proof Pad"
+!insertmacro MUI_PAGE_FINISH
+
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+
+!insertmacro MUI_LANGUAGE "English"
+BrandingText " "
+
 !include LogicLib.nsh
 
-page directory
-Page instfiles
- 
 !macro VerifyUserIsAdmin
 UserInfo::GetAccountType
 	pop $0
@@ -36,7 +52,7 @@ UserInfo::GetAccountType
 !macroend
 
 !define RunningX64 `"" RunningX64 ""`
- 
+
 function .onInit
 	${If} ${RunningX64}
 		StrCpy $INSTDIR "$PROGRAMFILES64\Proof Pad\"
@@ -44,20 +60,20 @@ function .onInit
 	setShellVarContext all
 	!insertmacro VerifyUserIsAdmin
 functionEnd
- 
+
 section "install"
 	setOutPath $INSTDIR
 	File "proofpad.jar"
 	File "proofpad.exe"
 	File "Icons\icon.ico"
 	File /r "acl2"
- 
+
 	writeUninstaller "$INSTDIR\uninstall.exe"
- 
+
 	# Start Menu
 	createDirectory "$SMPROGRAMS"
 	createShortCut "$SMPROGRAMS\${APPNAME}.lnk" "$INSTDIR\proofpad.exe" "" "$INSTDIR\icon.ico"
- 
+
 	# Registry information for add/remove programs
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayName" "${APPNAME} - ${DESCRIPTION}"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
@@ -71,14 +87,14 @@ section "install"
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "NoModify" 1
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "NoRepair" 1
 sectionEnd
- 
+
 # Uninstaller
- 
+
 function un.onInit
 	SetShellVarContext all
 	!insertmacro VerifyUserIsAdmin
 functionEnd
- 
+
 section "uninstall"
 	delete "$SMPROGRAMS\${APPNAME}.lnk"
 	RMDir /r "$INSTDIR\acl2"
@@ -86,6 +102,7 @@ section "uninstall"
 	Delete "$INSTDIR\proofpad.exe"
 	Delete "$INSTDIR\proofpad.jar"
 	Delete "$INSTDIR\uninstall.exe"
+	Delete "$INSTDIR\user_data.dat"
 
 	RMDir $INSTDIR
 	IfFileExists "$INSTDIR\*.*" +1 +2
