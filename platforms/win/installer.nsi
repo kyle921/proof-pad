@@ -8,14 +8,16 @@ RequestExecutionLevel admin
 
 !include "MUI2.nsh"
 
+# Installer settings
 Name "${APPNAME}"
-!define MUI_ICON "Icons\icon.ico"
-!define MUI_UNICON "Icons\icon.ico"
 outFile "InstallProofPad.exe"
 InstallDir "$PROGRAMFILES\${APPNAME}"
-
+!define MUI_ICON "Icons\icon.ico"
+!define MUI_UNICON "Icons\icon.ico"
 !define MUI_ABORTWARNING
+BrandingText " "
 
+# Installer pages
 !insertmacro MUI_PAGE_LICENSE "LICENSE"
 Var SMFOLDER
 !insertmacro MUI_PAGE_STARTMENU "Application" $SMFOLDER
@@ -25,11 +27,12 @@ Var SMFOLDER
 !define MUI_FINISHPAGE_RUN_TEXT "Launch Proof Pad"
 !insertmacro MUI_PAGE_FINISH
 
+# Uninstaller pages
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 
+# Set language
 !insertmacro MUI_LANGUAGE "English"
-BrandingText " "
 
 !include LogicLib.nsh
 
@@ -54,6 +57,7 @@ UserInfo::GetAccountType
 !define RunningX64 `"" RunningX64 ""`
 
 function .onInit
+	# Make sure installer isn't running
 	System::Call 'kernel32::CreateMutexA(i 0, i 0, t "proofpad-install") i .r1 ?e'
 	Pop $R0
 	StrCmp $R0 0 +3
@@ -72,7 +76,7 @@ section "install"
 	File "proofpad.jar"
 	File "proofpad.exe"
 	File "Icons\icon.ico"
-	File /r "acl2"
+	#File /r "acl2"
 
 	writeUninstaller "$INSTDIR\uninstall.exe"
 
@@ -85,7 +89,7 @@ section "install"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "InstallLocation" "$\"$INSTDIR$\""
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayIcon" "$\"$INSTDIR\icons.ico$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayIcon" "$\"$INSTDIR\icon.ico$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "Publisher" "$\"Caleb Eggensperger$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "DisplayVersion" "$\"${VERSIONMAJOR}.${VERSIONMINOR}$\""
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "VersionMajor" ${VERSIONMAJOR}
@@ -116,8 +120,9 @@ section "uninstall"
 	Delete "$INSTDIR\proofpad.jar"
 	Delete "$INSTDIR\uninstall.exe"
 	Delete "$INSTDIR\user_data.dat"
-
 	RMDir $INSTDIR
+
+	# Warn if unable to remove $INSTDIR because of extra files
 	IfFileExists "$INSTDIR\*.*" +1 +2
 		MessageBox MB_OK|MB_ICONINFORMATION|MB_SETFOREGROUND \
 			"Install directory $INSTDIR contains extra files. Please verify that you wish to remove these \
