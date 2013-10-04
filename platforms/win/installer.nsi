@@ -54,6 +54,12 @@ UserInfo::GetAccountType
 !define RunningX64 `"" RunningX64 ""`
 
 function .onInit
+	System::Call 'kernel32::CreateMutexA(i 0, i 0, t "proofpad-install") i .r1 ?e'
+	Pop $R0
+	StrCmp $R0 0 +3
+		MessageBox MB_OK|MB_ICONEXCLAMATION "The installer is already running."
+		Abort
+
 	${If} ${RunningX64}
 		StrCpy $INSTDIR "$PROGRAMFILES64\Proof Pad\"
 	${EndIf}
@@ -91,6 +97,13 @@ sectionEnd
 # Uninstaller
 
 function un.onInit
+	# Make sure the uninstaller isn't already runnign
+	System::Call 'kernel32::CreateMutexA(i 0, i 0, t "proofpad-uninstall") i .r1 ?e'
+	Pop $R0
+	StrCmp $R0 0 +3
+		MessageBox MB_OK|MB_ICONEXCLAMATION "The uninstaller is already running."
+		Abort
+
 	SetShellVarContext all
 	!insertmacro VerifyUserIsAdmin
 functionEnd
