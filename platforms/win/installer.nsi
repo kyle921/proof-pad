@@ -76,7 +76,7 @@ section "install"
 	File "proofpad.jar"
 	File "proofpad.exe"
 	File "Icons\icon.ico"
-	#File /r "acl2"
+	File /r "acl2"
 
 	writeUninstaller "$INSTDIR\uninstall.exe"
 
