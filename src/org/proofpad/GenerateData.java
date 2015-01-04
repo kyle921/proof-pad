@@ -21,7 +21,6 @@ public class GenerateData {
 		// Documentation
 		Map<String, String> docs = new HashMap<String, String>();
 		File docDir = new File(pathToAcl2 + "doc" + File.separator + "HTML");
-        Pattern otherSymbol = Pattern.compile("(_.*?_)");
 		for (File f : docDir.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File file, String s) {
