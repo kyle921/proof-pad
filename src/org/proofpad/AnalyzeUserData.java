@@ -35,9 +35,10 @@ public class AnalyzeUserData {
     public static void main(String args[]) throws IOException {
         List<UserData> data = new ArrayList<UserData>();
         Map<String, Integer> useMap = new HashMap<String, Integer>();
+        BufferedReader br = null;
         for (int i = 1; i <= 12; i++) {
             String filename = "/Users/calebegg/Code/ppuserdata/" + i + ".xml";
-            BufferedReader br = new BufferedReader(new FileReader(filename));
+            br = new BufferedReader(new FileReader(filename));
             String contents = br.readLine();
             XStream xs = new XStream(new StaxDriver());
             xs.registerConverter(new UUIDConverter());
@@ -53,6 +54,7 @@ public class AnalyzeUserData {
                 useMap.put(key, count);
             }
         }
+        br.close();
         for (Map.Entry<String, Integer> entry : useMap.entrySet()) {
             if (entry.getValue() > 2) {
                 System.out.println(entry);

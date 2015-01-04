@@ -756,6 +756,7 @@ public class Acl2Parser extends AbstractParser {
 		Scanner bookScanner = new Scanner(book);
 		bookScanner.useDelimiter("\\Z");
         if (!bookScanner.hasNext()) {
+            bookScanner.close();
             return bookCache;
         }
 		String bookContents = bookScanner.next();
